@@ -1,0 +1,23 @@
+{
+  "name": "JSimage",
+  "version": "1.0.0",
+  "description": "A simple image upload server based on Node.js and Express.",
+  "main": "main.mjs",
+  "type": "module",
+  "scripts": {
+    "start": "node main.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "latest",
+    "multer": "latest",
+    "node-fetch": "latest",
+    "bcrypt": "latest"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
