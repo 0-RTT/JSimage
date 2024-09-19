@@ -1,242 +1,237 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>图库</title>
-  <link rel="icon" href="https://p1.meituan.net/csc/c195ee91001e783f39f41ffffbbcbd484286.ico" type="image/x-icon">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-    }
-    .header {
-      position: sticky;
-      top: 0;
-      background-color: #ffffff;
-      z-index: 1000;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding: 15px 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-    }
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
-    }
-    .image-container {
-      position: relative;
-      overflow: hidden;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      aspect-ratio: 1 / 1;
-      transition: transform 0.3s, box-shadow 0.3s;
-    }
-    .image-container .upload-time {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      background-color: rgba(255, 255, 255, 0.7);
-      padding: 5px;
-      border-radius: 5px;
-      color: #000;
-      font-size: 14px;
-      z-index: 10;
-      display: none;
-    }
-    .image-container:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    }
-    .gallery-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: opacity 0.3s;
-      opacity: 0;
-    }
-    .gallery-image.loaded {
-      opacity: 1;
-    }
-    .footer {
-      margin-top: 20px;
-      text-align: center;
-      font-size: 18px;
-      color: #555;
-    }
-    .delete-button {
-      background-color: #ff4d4d;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 15px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      width: auto;
-    }
-    .delete-button:hover {
-      background-color: #ff1a1a;
-    }
-    .hidden {
-      display: none;
-    }
-    @media (max-width: 600px) {
-      .gallery {
-        grid-template-columns: repeat(2, 1fr);
+  <head>
+    <title>图库</title>
+    <link rel="icon" href="https://p1.meituan.net/csc/c195ee91001e783f39f41ffffbbcbd484286.ico" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
       }
       .header {
-        flex-direction: column;
-        align-items: flex-start;
+        position: sticky;
+        top: 0;
+        background-color: #ffffff;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 15px 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
       }
-      .header-right {
-        margin-top: 10px;
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+      }
+      .image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        aspect-ratio: 1 / 1;
+        transition: transform 0.3s, border 0.3s;
+      }
+      .image-container.selected {
+        border: 4px solid #e6ccff;
+      }
+      .image-container .upload-time {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        background-color: rgba(255, 255, 255, 0.7);
+        padding: 5px;
+        border-radius: 5px;
+        color: #000;
+        font-size: 14px;
+        z-index: 10;
+        display: none;
+      }
+      .image-container:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      }
+      .gallery-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: opacity 0.3s;
+        opacity: 0;
+      }
+      .gallery-image.loaded {
+        opacity: 1;
       }
       .footer {
-        font-size: 16px;
+        margin-top: 20px;
+        text-align: center;
+        font-size: 18px;
+        color: #555;
       }
       .delete-button {
-        width: 100%;
-        margin-top: 10px;
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        width: auto;
       }
-    }
-  </style>
-  <script>
-let selectedCount = 0;
-const selectedKeys = new Set();
+      .delete-button:hover {
+        background-color: #ff1a1a;
+      }
+      .hidden {
+        display: none;
+      }
+      @media (max-width: 600px) {
+        .gallery {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .header {
+          flex-direction: row;
+          align-items: center;
+        }
+        .header-right {
+          margin-left: auto;
+        }
+        .footer {
+          font-size: 16px;
+        }
+        .delete-button {
+          width: 100%;
+          margin-top: 10px;
+        }
+      }
+    </style>
+    <script>
+      let selectedCount = 0;
+      const selectedKeys = new Set();
 
-function toggleImageSelection(container) {
-  const key = container.getAttribute('data-key');
-  container.classList.toggle('selected');
-  const uploadTime = container.querySelector('.upload-time');
-  if (container.classList.contains('selected')) {
-    selectedKeys.add(key);
-    selectedCount++;
-    uploadTime.style.display = 'block';
-  } else {
-    selectedKeys.delete(key);
-    selectedCount--;
-    uploadTime.style.display = 'none';
-  }
-  updateDeleteButton();
-}
+      function toggleImageSelection(container) {
+        const key = container.getAttribute('data-key');
+        container.classList.toggle('selected');
+        const uploadTime = container.querySelector('.upload-time');
+        if (container.classList.contains('selected')) {
+          selectedKeys.add(key);
+          selectedCount++;
+          uploadTime.style.display = 'block';
+        } else {
+          selectedKeys.delete(key);
+          selectedCount--;
+          uploadTime.style.display = 'none';
+        }
+        updateDeleteButton();
+      }
 
-function updateDeleteButton() {
-  const deleteButton = document.getElementById('delete-button');
-  const countDisplay = document.getElementById('selected-count');
-  countDisplay.textContent = selectedCount;
-  const headerRight = document.querySelector('.header-right');
-  if (selectedCount > 0) {
-    headerRight.classList.remove('hidden');
-  } else {
-    headerRight.classList.add('hidden');
-  }
-}
+      function updateDeleteButton() {
+        const countDisplay = document.getElementById('selected-count');
+        countDisplay.textContent = selectedCount;
+        const headerRight = document.querySelector('.header-right');
+        if (selectedCount > 0) {
+          headerRight.classList.remove('hidden');
+        } else {
+          headerRight.classList.add('hidden');
+        }
+      }
 
-async function deleteSelectedImages() {
-  if (selectedKeys.size === 0) return;
-  const response = await fetch('/delete-images', {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ filenames: Array.from(selectedKeys) })
-  });
-  if (response.ok) {
-    alert('选中的媒体已删除');
-    location.reload();
-  } else {
-    alert('删除失败');
-  }
-}
+      async function deleteSelectedImages() {
+        if (selectedKeys.size === 0) return;
+        const response = await fetch('/delete-images', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ filenames: Array.from(selectedKeys) })
+        });
+        if (response.ok) {
+          alert('选中的媒体已删除');
+          location.reload();
+        } else {
+          alert('删除失败');
+        }
+      }
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const gallery = document.querySelector('.gallery');
-  
-  // 获取图片列表
-  const response = await fetch('/imageslist');
-  if (response.ok) {
-    const imageUrls = await response.json();
-    document.getElementById('media-count').textContent = imageUrls.length; // 更新媒体计数
-    
-    // 反转数组以按时间倒序展示
-    imageUrls.sort((a, b) => {
-      const timestampA = parseInt(a.split('/').pop().split('.')[0]);
-      const timestampB = parseInt(b.split('/').pop().split('.')[0]);
-      return timestampB - timestampA;
-    });
+      document.addEventListener('DOMContentLoaded', async () => {
+        const gallery = document.querySelector('.gallery');
+        const response = await fetch('/imageslist');
+        if (response.ok) {
+          const imageUrls = await response.json();
+          document.getElementById('media-count').textContent = imageUrls.length;
+          imageUrls.sort((a, b) => {
+            const timestampA = parseInt(a.split('/').pop().split('.')[0]);
+            const timestampB = parseInt(b.split('/').pop().split('.')[0]);
+            return timestampB - timestampA;
+          });
 
-    imageUrls.forEach(url => {
-      const imageContainer = document.createElement('div');
-      imageContainer.className = 'image-container';
-      const filename = url.split('/').pop(); // 提取文件名
-      imageContainer.setAttribute('data-key', filename); // 用于选择，提取文件名
-      imageContainer.onclick = () => toggleImageSelection(imageContainer);
-      
-      const img = document.createElement('img');
-      img.className = 'gallery-image';
-      img.setAttribute('data-src', url);
-      img.alt = 'Image';
-      
-      // 提取时间戳并格式化
-      const timestamp = parseInt(filename.split('.')[0]); // 假设文件名格式为 "timestamp.ext"
-      const uploadTime = new Date(timestamp).toLocaleString(); // 格式化为可读的日期时间
-      
-      const uploadTimeDiv = document.createElement('div');
-      uploadTimeDiv.className = 'upload-time';
-      uploadTimeDiv.textContent = '上传时间: ' + uploadTime; // 使用格式化后的时间
-      
-      imageContainer.appendChild(img);
-      imageContainer.appendChild(uploadTimeDiv);
-      gallery.appendChild(imageContainer);
-    });
-    
-    // 加载图片
-    const images = document.querySelectorAll('.gallery-image[data-src]');
-    const options = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.1
-    };
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          img.src = img.dataset.src;
-          img.onload = () => img.classList.add('loaded');
-          observer.unobserve(img);
+          imageUrls.forEach(url => {
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'image-container';
+            const filename = url.split('/').pop();
+            imageContainer.setAttribute('data-key', filename);
+            imageContainer.onclick = () => toggleImageSelection(imageContainer);
+            
+            const img = document.createElement('img');
+            img.className = 'gallery-image';
+            img.setAttribute('data-src', url);
+            img.alt = 'Image';
+            
+            const timestamp = parseInt(filename.split('.')[0]);
+            const uploadTime = new Date(timestamp).toLocaleString();
+            
+            const uploadTimeDiv = document.createElement('div');
+            uploadTimeDiv.className = 'upload-time';
+            uploadTimeDiv.textContent = '上传时间: ' + uploadTime;
+            
+            imageContainer.appendChild(img);
+            imageContainer.appendChild(uploadTimeDiv);
+            gallery.appendChild(imageContainer);
+          });
+          
+          const images = document.querySelectorAll('.gallery-image[data-src]');
+          const options = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+          };
+          const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.onload = () => img.classList.add('loaded');
+                observer.unobserve(img);
+              }
+            });
+          }, options);
+          images.forEach(image => {
+            imageObserver.observe(image);
+          });
+        } else {
+          console.error('无法加载图片列表');
         }
       });
-    }, options);
-    images.forEach(image => {
-      imageObserver.observe(image);
-    });
-  } else {
-    console.error('无法加载图片列表');
-  }
-});
-
-  </script>
-</head>
-<body>
-  <div class="header">
-    <div class="header-left">
-      <span>当前共有 <span id="media-count">0</span> 个媒体文件</span>
+    </script>
+  </head>
+  <body>
+    <div class="header">
+      <div class="header-left">
+        <span>媒体文件 <span id="media-count">0</span> 个</span>
+        <span>已选中: <span id="selected-count">0</span> 个</span>
+      </div>
+      <div class="header-right hidden">
+        <button id="delete-button" class="delete-button" onclick="deleteSelectedImages()">删除选中</button>
+      </div>
     </div>
-    <div class="header-right hidden">
-      <span>选中数量: <span id="selected-count">0</span></span>
-      <button id="delete-button" class="delete-button" onclick="deleteSelectedImages()">删除选中</button>
+    <div class="gallery">
+      <!-- 图片将动态加载到这里 -->
     </div>
-  </div>
-  <div class="gallery">
-    <!-- 图片将动态加载到这里 -->
-  </div>
-  <div class="footer">
-    到底啦
-  </div>
-</body>
+    <div class="footer">
+      到底啦
+    </div>
+  </body>
 </html>
